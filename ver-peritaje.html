@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver Peritaje - Perito Expert</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body { background: #f5f5f5; padding: 20px; }
+        .ver-container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }
+        .ver-header { background: linear-gradient(135deg, #15151e 0%, #e10600 100%); color: white; padding: 25px 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .ver-header h1 { color: white; margin: 0; font-size: 22px; }
+        .ver-header .acciones { display: flex; gap: 10px; flex-wrap: wrap; }
+        .ver-header button, .ver-header a { padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 13px; text-decoration: none; color: white; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-volver { background: #17a2b8; }
+        .btn-imprimir { background: #15151e; }
+        .btn-pdf { background: #d93025; }
+        .ver-body { padding: 0; }
+        .cargando { text-align: center; padding: 60px; color: #888; }
+        .cargando i { font-size: 40px; color: #e10600; margin-bottom: 15px; animation: spin 1s linear infinite; display: inline-block; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .error { text-align: center; padding: 60px; color: #F44336; }
+        @media print {
+            body { background: white; padding: 0; }
+            .ver-header { display: none; }
+            .ver-container { box-shadow: none; border-radius: 0; }
+        }
+    </style>
+</head>
+<body>
+    <script>
+        if (!localStorage.getItem('perito_user')) {
+            window.location.href = 'login.html';
+        }
+    </script>
+
+    <div class="ver-container">
+        <div class="ver-header">
+            <h1><i class="fas fa-file-alt"></i> Informe de Peritaje</h1>
+            <div class="acciones">
+                <a href="historial.html" class="btn-volver"><i class="fas fa-arrow-left"></i> Volver al Historial</a>
+                <button onclick="window.print()" class="btn-imprimir"><i class="fas fa-print"></i> Imprimir</button>
+                <button onclick="guardarPDF()" class="btn-pdf"><i class="fas fa-file-pdf"></i> Guardar PDF</button>
+            </div>
+        </div>
+        <div class="ver-body" id="contenidoInforme">
+            <div class="cargando">
+                <i class="fas fa-spinner"></i>
+                <p>Cargando informe...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="ver-peritaje.js"></script>
+</body>
+</html>

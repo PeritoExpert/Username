@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Peritaje - Perito Expert</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        // Verificar sesión antes de mostrar la página
+        (function() {
+            if (!localStorage.getItem('perito_user')) {
+                window.location.replace('login.html');
+            }
+        })();
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container" id="evaluationForm">
+            <div class="form-header">
+                <h1> Peritaje Automotriz</h1>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <span id="welcomeUser" style="font-size:13px; color:#666;"></span>
+                    <a href="historial.html" style="padding:8px 14px; background:#17a2b8; color:white; border:none; border-radius:6px; cursor:pointer; font-size:12px; text-decoration:none; font-weight:600;">
+                        <i class="fas fa-history"></i> Historial
+                    </a>
+                    <button type="button" onclick="cerrarSesion()" style="padding:8px 14px; background:#6c757d; color:white; border:none; border-radius:6px; cursor:pointer; font-size:12px;">
+                        <i class="fas fa-sign-out-alt"></i> Salir
+                    </button>
+                </div>
+                <div class="draft-status" id="draftStatus"></div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar" style="width: 7.1%"></div>
+                <div class="progress-label" id="progressLabel">Paso 1 de 14</div>
+            </div>
+
+            <!-- ============ SECCIÓN 1: DATOS DEL VEHÍCULO ============ -->
+            <div class="form-section active" id="section-1">
+                <h2><i class="fas fa-car"></i> Datos del Vehículo</h2>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vehicleClass">Clase: <span class="req">*</span></label>
+                        <input type="text" id="vehicleClass" placeholder="Ej: Automóvil, Camioneta" required>
+                        <div class="validation-error" id="vehicleClassError">Obligatorio</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleBrand">Marca: <span class="req">*</span></label>
+                        <input type="text" id="vehicleBrand" placeholder="Ej: Chevrolet, Toyota" required>
+                        <div class="validation-error" id="vehicleBrandError">Obligatorio</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vehicleLine">Línea: <span class="req">*</span></label>
+                        <input type="text" id="vehicleLine" placeholder="Ej: Spark, Hilux" required>
+                        <div class="validation-error" id="vehicleLineError">Obligatorio</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleBody">Carrocería:</label>
+                        <input type="text" id="vehicleBody" placeholder="Ej: Hatchback, Sedán">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vehicleModel">Modelo (Año): <span class="req">*</span></label>
+                        <input type="text" id="vehicleModel" placeholder="Ej: 2018" required>
+                        <div class="validation-error" id="vehicleModelError">Obligatorio</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleNationality">Nacionalidad:</label>
+                        <input type="text" id="vehicleNationality" placeholder="Ej: Colombiano, Japonés">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vehicleDoors">Número de Puertas:</label>
+                        <select id="vehicleDoors">
+                            <option value="">Seleccione</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleTransmission">Tipo de caja:</label>
+                        <input type="text" id="vehicleTransmission" placeholder="Ej: Mecánica, Automática">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vehicleEngine">Cilindraje:</label>
+                        <input type="text" id="vehicleEngine" placeholder="Ej: 1600 cc">
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleFuel">Combustible:</label>
+                        <input type="text" id="vehicleFuel" placeholder="Ej: Gasolina, Diesel">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vehicleTraction">Tracción:</label>
+                        <select id="vehicleTraction">
+                            <option value="">Seleccione</option>
+                            <option value="4x2">4x2 (sencilla)</option>
+                            <option value="4x4">4x4 (doble)</option>
+                            <option value="AWD">AWD</option>
+                            <option value="FWD">FWD (delantera)</option>
+                            <option value="RWD">RWD (trasera)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="vehiclePaint">Pintura:</label>
+                        <input type="text" id="vehiclePaint" placeholder="Ej: Metálica, Plana">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vehicleService">Servicio:</label>
+                        <input type="text" id="vehicleService" placeholder="Ej: Particular, Público">
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleMileage">Kilometraje:</label>
+                        <input type="text" id="vehicleMileage" placeholder="Kilómetros recorridos">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vehicleColor">Color:</label>
+                        <input type="text" id="vehicleColor" placeholder="Ej: Rojo, Negro">
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleAbsBrakes">¿Tiene ABS?</label>
+                        <select id="vehicleAbsBrakes">
+                            <option value="">Seleccione</option>
+                            <option value="Sí">Sí</option>
+                            <option value="No">No</option>
+                            <option value="N/A">N/A</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vehicleChassis">No. Chasis / VIN:</label>
+                        <input type="text" id="vehicleChassis" placeholder="17 caracteres" maxlength="17" style="text-transform:uppercase">
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleSerial">No. Serial:</label>
+                        <input type="text" id="vehicleSerial" placeholder="Número de serial">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vehicleMotor">No. Motor:</label>
+                        <input type="text" id="vehicleMotor" placeholder="Número de motor">
+                    </div>
+                    <div class="form-group">
+                        <label for="vehiclePlate">Placa:</label>
+                        <input type="text" id="vehiclePlate" placeholder="Placa del vehículo" style="text-transform:uppercase">
+                    </div>
+                </div>
+
+                <div class="navigation">
+                    <button type="button" class="btn btn-secondary" disabled>Anterior</button>
+                    <button type="button" class="btn" onclick="validateSection(1, event)">Siguiente</button>
+                </div>
+            </div>
+
+            <!-- ============ SECCIÓN 2: DOCUMENTACIÓN ============ -->
+            <div class="form-section" id="section-2">
+                <h2><i class="fas fa-file-contract"></i> Documentación</h2>
+
+                <div class="form-group">
+                    <label for="soat">¿El vehículo tiene SOAT vigente? <span class="req">*</span></label>
+                    <select id="soat" required>
+                        <option value="">Seleccione una opción</option>
+                        <option value="Sí">Sí</option>
+                        <option value="No">No</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="soatError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="propertyCard">¿Tiene tarjeta de propiedad? <span class="req">*</span></label>
+                    <select id="propertyCard" required>
+                        <option value="">Seleccione una opción</option>
+                        <option value="Sí">Sí</option>
+                        <option value="No">No</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="propertyCardError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="accidentsReported">¿Reporta siniestros? <span class="req">*</span></label>
+                    <select id="accidentsReported" required>
+                        <option value="">Seleccione una opción</option>
+                        <option value="Sí">No</option>
+                        <option value="No">Si</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="accidentsReportedError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="claimValue">Valor de reclamaciones:</label>
+                    <input type="text" id="claimValue" placeholder="Valor en pesos">
+                </div>
+
+                <div class="form-group">
+                    <label for="techReview">¿Cuenta con Rev. Tecnomecánica? <span class="req">*</span></label>
+                    <select id="techReview" required>
+                        <option value="">Seleccione una opción</option>
+                        <option value="Sí">Sí</option>
+                        <option value="No">No</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="techReviewError">Obligatorio</div>
+                </div>
+
+                <div class="navigation">
+                    <button type="button" class="btn btn-secondary" onclick="prevSection(1)">Anterior</button>
+                    <button type="button" class="btn" onclick="validateSection(2, event)">Siguiente</button>
+                </div>
+            </div>
+
+            <!-- ============ SECCIÓN 3: VALORES COMERCIALES ============ -->
+            <div class="form-section" id="section-3">
+                <h2><i class="fas fa-dollar-sign"></i> Valores Comerciales</h2>
+
+                <div class="form-group">
+                    <label for="marketValue">Revista Motor: <span class="req">*</span></label>
+                    <input type="text" id="marketValue" placeholder="Valor en pesos" required>
+                    <div class="validation-error" id="marketValueError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="fasecoldaValue">Fasecolda: <span class="req">*</span></label>
+                    <input type="text" id="fasecoldaValue" placeholder="Valor en pesos" required>
+                    <div class="validation-error" id="fasecoldaValueError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="expertValue">Peritoexpert.com: <span class="req">*</span></label>
+                    <input type="text" id="expertValue" placeholder="Valor en pesos" required>
+                    <div class="validation-error" id="expertValueError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="accessoriesValue">Accesorios:</label>
+                    <input type="text" id="accessoriesValue" placeholder="Valor en pesos">
+                </div>
+
+                <div class="navigation">
+                    <button type="button" class="btn btn-secondary" onclick="prevSection(2)">Anterior</button>
+                    <button type="button" class="btn" onclick="validateSection(3, event)">Siguiente</button>
+                </div>
+            </div>
+
+            <!-- ============ SECCIÓN 4: FUGA DE FLUIDOS ============ -->
+            <div class="form-section" id="section-4">
+                <h2><i class="fas fa-tint"></i> Fuga de Fluidos</h2>
+
+                <div class="form-group">
+                    <label for="engineOilLeak">Fuga de aceite motor <span class="req">*</span></label>
+                    <select id="engineOilLeak" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno (No tiene fuga)</option>
+                        <option value="Regular">Regular (Fuga leve)</option>
+                        <option value="Malo">Malo (Sí tiene fuga)</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="engineOilLeakError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="transmissionOilLeak">Fuga de aceite caja <span class="req">*</span></label>
+                    <select id="transmissionOilLeak" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno (No tiene fuga)</option>
+                        <option value="Regular">Regular (Fuga leve)</option>
+                        <option value="Malo">Malo (Sí tiene fuga)</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="transmissionOilLeakError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="transmissionFluidLeak">Fuga de fluido de transmisión <span class="req">*</span></label>
+                    <select id="transmissionFluidLeak" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno (No tiene fuga)</option>
+                        <option value="Regular">Regular (Fuga leve)</option>
+                        <option value="Malo">Malo (Sí tiene fuga)</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="transmissionFluidLeakError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="coolantLeak">Fuga de refrigerante <span class="req">*</span></label>
+                    <select id="coolantLeak" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno (No tiene fuga)</option>
+                        <option value="Regular">Regular (Fuga leve)</option>
+                        <option value="Malo">Malo (Sí tiene fuga)</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="coolantLeakError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="brakeFluidLeak">Fuga de líquido de freno <span class="req">*</span></label>
+                    <select id="brakeFluidLeak" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno (No tiene fuga)</option>
+                        <option value="Regular">Regular (Fuga leve)</option>
+                        <option value="Malo">Malo (Sí tiene fuga)</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="brakeFluidLeakError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="fuelLeak">Fuga de combustible <span class="req">*</span></label>
+                    <select id="fuelLeak" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno (No tiene fuga)</option>
+                        <option value="Regular">Regular (Fuga leve)</option>
+                        <option value="Malo">Malo (Sí tiene fuga)</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="fuelLeakError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="acWaterLeak">Fuga de agua del aire acondicionado <span class="req">*</span></label>
+                    <select id="acWaterLeak" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno (No tiene fuga)</option>
+                        <option value="Regular">Regular (Fuga leve)</option>
+                        <option value="Malo">Malo (Sí tiene fuga)</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="acWaterLeakError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="powerSteeringLeak">Fuga de dirección hidráulica <span class="req">*</span></label>
+                    <select id="powerSteeringLeak" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno (No tiene fuga)</option>
+                        <option value="Regular">Regular (Fuga leve)</option>
+                        <option value="Malo">Malo (Sí tiene fuga)</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="powerSteeringLeakError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="differentialLeak">Fuga de diferencial <span class="req">*</span></label>
+                    <select id="differentialLeak" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno (No tiene fuga)</option>
+                        <option value="Regular">Regular (Fuga leve)</option>
+                        <option value="Malo">Malo (Sí tiene fuga)</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="differentialLeakError">Obligatorio</div>
+                </div>
+
+                <div class="navigation">
+                    <button type="button" class="btn btn-secondary" onclick="prevSection(3)">Anterior</button>
+                    <button type="button" class="btn" onclick="validateSection(4, event)">Siguiente</button>
+                </div>
+            </div>
+
+            <!-- ============ SECCIÓN 5: SISTEMA ELÉCTRICO ============ -->
+            <div class="form-section" id="section-5">
+                <h2><i class="fas fa-bolt"></i> Sistema Eléctrico</h2>
+
+                <div class="form-group">
+                    <label for="frontWindshield">Panorámico delantero <span class="req">*</span></label>
+                    <select id="frontWindshield" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="frontWindshieldError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="rearWindshield">Panorámico trasero <span class="req">*</span></label>
+                    <select id="rearWindshield" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="rearWindshieldError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="windows">Vidrios <span class="req">*</span></label>
+                    <select id="windows" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="windowsError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="wipers">Plumillas <span class="req">*</span></label>
+                    <select id="wipers" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="wipersError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="rightHeadlight">Farola derecha <span class="req">*</span></label>
+                    <select id="rightHeadlight" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="rightHeadlightError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="leftHeadlight">Farola izquierda <span class="req">*</span></label>
+                    <select id="leftHeadlight" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="leftHeadlightError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="rightBrakeLight">Stop derecho <span class="req">*</span></label>
+                    <select id="rightBrakeLight" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="rightBrakeLightError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="leftBrakeLight">Stop izquierdo <span class="req">*</span></label>
+                    <select id="leftBrakeLight" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="leftBrakeLightError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="horn">Bocina <span class="req">*</span></label>
+                    <select id="horn" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="hornError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="battery">Batería <span class="req">*</span></label>
+                    <select id="battery" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="batteryError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="fuses">Fusibles <span class="req">*</span></label>
+                    <select id="fuses" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="fusesError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="alternator">Alternador <span class="req">*</span></label>
+                    <select id="alternator" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="alternatorError">Obligatorio</div>
+                </div>
+
+                <div class="navigation">
+                    <button type="button" class="btn btn-secondary" onclick="prevSection(4)">Anterior</button>
+                    <button type="button" class="btn" onclick="validateSection(5, event)">Siguiente</button>
+                </div>
+            </div>
+
+            <!-- ============ SECCIÓN 6: INSPECCIÓN VISUAL ============ -->
+            <div class="form-section" id="section-6">
+                <h2><i class="fas fa-search"></i> Inspección Visual y Técnica</h2>
+
+                <div class="form-group">
+                    <label for="leftFender">Guardafango izquierdo trasero <span class="req">*</span></label>
+                    <select id="leftFender" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="leftFenderError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="rightFender">Guardafango derecho trasero <span class="req">*</span></label>
+                    <select id="rightFender" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="rightFenderError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="rightSide">Guardafango izquierdo delantero <span class="req">*</span></label>
+                    <select id="rightSide" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="rightSideError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="leftSide">Guardafango derecho delantero <span class="req">*</span></label>
+                    <select id="leftSide" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="leftSideError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="leftRearDoor">Puerta trasera derecha <span class="req">*</span></label>
+                    <select id="leftRearDoor" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="leftRearDoorError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="rightRearDoor">Puerta trasera izquierda <span class="req">*</span></label>
+                    <select id="rightRearDoor" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="rightRearDoorError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="rightFrontDoor">Puerta delantera derecha <span class="req">*</span></label>
+                    <select id="rightFrontDoor" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="rightFrontDoorError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="leftFrontDoor">Puerta delantera izquierda <span class="req">*</span></label>
+                    <select id="leftFrontDoor" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="leftFrontDoorError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="rightRunningBoard">Puerta baúl <span class="req">*</span></label>
+                    <select id="rightRunningBoard" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="rightRunningBoardError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="hood">Capo <span class="req">*</span></label>
+                    <select id="hood" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="hoodError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="leftRunningBoard">Estribo izquierdo delantero <span class="req">*</span></label>
+                    <select id="leftRunningBoard" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="leftRunningBoardError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="rightRearRunningBoard">Estribo derecho trasero <span class="req">*</span></label>
+                    <select id="rightRearRunningBoard" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="rightRearRunningBoardError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="frontBumper">Defensa delantera <span class="req">*</span></label>
+                    <select id="frontBumper" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="frontBumperError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="rearBumper">Defensa trasera <span class="req">*</span></label>
+                    <select id="rearBumper" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="rearBumperError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="roof">Techo <span class="req">*</span></label>
+                    <select id="roof" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="roofError">Obligatorio</div>
+                </div>
+
+                <div class="navigation">
+                    <button type="button" class="btn btn-secondary" onclick="prevSection(5)">Anterior</button>
+                    <button type="button" class="btn" onclick="validateSection(6, event)">Siguiente</button>
+                </div>
+            </div>
+
+            <!-- ============ SECCIÓN 7: ESTADO DEL MOTOR ============ -->
+            <div class="form-section" id="section-7">
+                <h2><i class="fas fa-cogs"></i> Estado del Motor</h2>
+
+                <div class="form-group">
+                    <label for="cylinderCompression">Compresión por cilindro: <span class="req">*</span></label>
+                    <select id="cylinderCompression" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="cylinderCompressionError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="obdScan">Escaneo OBD-II: <span class="req">*</span></label>
+                    <select id="obdScan" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="obdScanError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="timingBelt">Estado de correa de repartición:</label>
+                    <select id="timingBelt">
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="oilPressure">Presión de aceite:</label>
+                    <select id="oilPressure">
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="engineTemperature">Temperatura de operación:</label>
+                    <select id="engineTemperature">
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Normal</option>
+                        <option value="Regular">Ligeramente elevada</option>
+                        <option value="Malo">Sobrecalentamiento</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                </div>
+
+                <div class="navigation">
+                    <button type="button" class="btn btn-secondary" onclick="prevSection(6)">Anterior</button>
+                    <button type="button" class="btn" onclick="validateSection(7, event)">Siguiente</button>
+                </div>
+            </div>
+
+            <!-- ============ SECCIÓN 8: TRANSMISIÓN / CAJA ============ -->
+            <div class="form-section" id="section-8">
+                <h2><i class="fas fa-cog"></i> Transmisión / Caja</h2>
+
+                <div class="form-group">
+                    <label for="transType">Tipo de transmisión: <span class="req">*</span></label>
+                    <select id="transType" required>
+                        <option value="">Seleccione</option>
+                        <option value="Mecánica">Mecánica</option>
+                        <option value="Automática">Automática</option>
+                        <option value="CVT">CVT</option>
+                        <option value="DSG">DSG / DCT</option>
+                        <option value="Secuencial">Secuencial</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="transTypeError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="transGears">Número de velocidades:</label>
+                    <select id="transGears">
+                        <option value="">Seleccione</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="CVT">CVT (infinita)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="transOilCondition">Estado del aceite de caja: <span class="req">*</span></label>
+                    <select id="transOilCondition" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno (color y nivel OK)</option>
+                        <option value="Regular">Regular (oscuro pero sin quemar)</option>
+                        <option value="Malo">Malo (quemado / con partículas)</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="transOilConditionError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="transChanges">Cambios de marcha: <span class="req">*</span></label>
+                    <select id="transChanges" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Suaves, sin ruidos</option>
+                        <option value="Regular">Ligeramente bruscos</option>
+                        <option value="Malo">Golpeteo / patinaje / no engrana</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="transChangesError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="transClutch">Estado del clutch / embrague (si aplica):</label>
+                    <select id="transClutch">
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular (punto alto, desgaste medio)</option>
+                        <option value="Malo">Malo (patina / ruido)</option>
+                        <option value="N/A">N/A (automática)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="transLeaks">Fugas en la caja: <span class="req">*</span></label>
+                    <select id="transLeaks" required>
+                        <option value="">Seleccione</option>
+                        <option value="Sí">Sí presenta fugas</option>
+                        <option value="No">No presenta</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="transLeaksError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="transNoises">Ruidos anormales en caja: <span class="req">*</span></label>
+                    <select id="transNoises" required>
+                        <option value="">Seleccione</option>
+                        <option value="Sí">Sí</option>
+                        <option value="No">No</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="transNoisesError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="transObservations">Observaciones de transmisión:</label>
+                    <textarea id="transObservations" rows="3" placeholder="Detalles adicionales..."></textarea>
+                </div>
+
+                <div class="navigation">
+                    <button type="button" class="btn btn-secondary" onclick="prevSection(7)">Anterior</button>
+                    <button type="button" class="btn" onclick="validateSection(8, event)">Siguiente</button>
+                </div>
+            </div>
+
+            <!-- ============ SECCIÓN 9: LLANTAS ============ -->
+            <div class="form-section" id="section-9">
+                <h2><i class="fas fa-circle-notch"></i> Llantas</h2>
+
+                <div class="form-group">
+                    <label for="frontTires">Llantas delanteras <span class="req">*</span></label>
+                    <select id="frontTires" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="frontTiresError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="rearTires">Llantas traseras <span class="req">*</span></label>
+                    <select id="rearTires" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="rearTiresError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="spareTire">Llanta de repuesto: <span class="req">*</span></label>
+                    <select id="spareTire" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="spareTireError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="tireWear">Desgaste <span class="req">*</span></label>
+                    <select id="tireWear" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="tireWearError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="rimsCondition">Estado de rines <span class="req">*</span></label>
+                    <select id="rimsCondition" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="rimsConditionError">Obligatorio</div>
+                </div>
+
+                <div class="navigation">
+                    <button type="button" class="btn btn-secondary" onclick="prevSection(8)">Anterior</button>
+                    <button type="button" class="btn" onclick="validateSection(9, event)">Siguiente</button>
+                </div>
+            </div>
+
+            <!-- ============ SECCIÓN 10: TREN DELANTERO ============ -->
+            <div class="form-section" id="section-10">
+                <h2><i class="fas fa-tools"></i> Tren Delantero y Suspensión</h2>
+
+                <div class="form-group">
+                    <label for="brakePads">Pastillas de freno <span class="req">*</span></label>
+                    <select id="brakePads" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="brakePadsError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="brakeDiscs">Discos de freno <span class="req">*</span></label>
+                    <select id="brakeDiscs" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="brakeDiscsError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="frontShocks">Amortiguadores delanteros <span class="req">*</span></label>
+                    <select id="frontShocks" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="frontShocksError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="rearShocks">Amortiguadores traseros <span class="req">*</span></label>
+                    <select id="rearShocks" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="rearShocksError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="axleTips">Puntas de ejes <span class="req">*</span></label>
+                    <select id="axleTips" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="axleTipsError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="axles">Axiales <span class="req">*</span></label>
+                    <select id="axles" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="axlesError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="terminals">Terminales <span class="req">*</span></label>
+                    <select id="terminals" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="terminalsError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="ballJoints">Rótulas <span class="req">*</span></label>
+                    <select id="ballJoints" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="ballJointsError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="bushings">Bujes <span class="req">*</span></label>
+                    <select id="bushings" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="bushingsError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="controlArms">Tijeras <span class="req">*</span></label>
+                    <select id="controlArms" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="controlArmsError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="steeringBox">Caja de dirección <span class="req">*</span></label>
+                    <select id="steeringBox" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="steeringBoxError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="bearings">Rodamientos <span class="req">*</span></label>
+                    <select id="bearings" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="bearingsError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="chassis">Chasís <span class="req">*</span></label>
+                    <select id="chassis" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="chassisError">Obligatorio</div>
+                </div>
+
+                <div class="navigation">
+                    <button type="button" class="btn btn-secondary" onclick="prevSection(9)">Anterior</button>
+                    <button type="button" class="btn" onclick="validateSection(10, event)">Siguiente</button>
+                </div>
+            </div>
+
+            <!-- ============ SECCIÓN 11: INTERIOR ============ -->
+            <div class="form-section" id="section-11">
+                <h2><i class="fas fa-chair"></i> Interior del Vehículo</h2>
+
+                <div class="form-group">
+                    <label for="heating">Calefacción <span class="req">*</span></label>
+                    <select id="heating" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="heatingError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="ac">Aire acondicionado <span class="req">*</span></label>
+                    <select id="ac" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="acError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="radio">Radio <span class="req">*</span></label>
+                    <select id="radio" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="radioError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="alarm">Alarma <span class="req">*</span></label>
+                    <select id="alarm" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="alarmError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="upholstery">Tapicería <span class="req">*</span></label>
+                    <select id="upholstery" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="upholsteryError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="dashboard">Tablero <span class="req">*</span></label>
+                    <select id="dashboard" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="dashboardError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="dashboardLights">Luces tablero <span class="req">*</span></label>
+                    <select id="dashboardLights" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="dashboardLightsError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="interiorLights">Luces interiores <span class="req">*</span></label>
+                    <select id="interiorLights" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="interiorLightsError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="seatBelts">Cinturones de seguridad <span class="req">*</span></label>
+                    <select id="seatBelts" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="seatBeltsError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="mirrors">Espejos <span class="req">*</span></label>
+                    <select id="mirrors" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="mirrorsError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="powerWindows">Elevavidrios <span class="req">*</span></label>
+                    <select id="powerWindows" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="powerWindowsError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="locks">Seguros <span class="req">*</span></label>
+                    <select id="locks" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="locksError">Obligatorio</div>
+                </div>
+
+                <div class="navigation">
+                    <button type="button" class="btn btn-secondary" onclick="prevSection(10)">Anterior</button>
+                    <button type="button" class="btn" onclick="validateSection(11, event)">Siguiente</button>
+                </div>
+            </div>
+
+            <!-- ============ SECCIÓN 12: ACCESORIOS ============ -->
+            <div class="form-section" id="section-12">
+                <h2><i class="fas fa-star"></i> Accesorios</h2>
+
+                <div class="form-group">
+                    <label for="speakers">Parlantes <span class="req">*</span></label>
+                    <select id="speakers" required>
+                        <option value="">Seleccione</option>
+                        <option value="Sí">Sí</option>
+                        <option value="No">No</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="speakersError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="powerPlant">Planta <span class="req">*</span></label>
+                    <select id="powerPlant" required>
+                        <option value="">Seleccione</option>
+                        <option value="Sí">Sí</option>
+                        <option value="No">No</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="powerPlantError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="luxuryRims">Rines de lujo <span class="req">*</span></label>
+                    <select id="luxuryRims" required>
+                        <option value="">Seleccione</option>
+                        <option value="Sí">Sí</option>
+                        <option value="No">No</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="luxuryRimsError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="safetyFilm">Película de seguridad <span class="req">*</span></label>
+                    <select id="safetyFilm" required>
+                        <option value="">Seleccione</option>
+                        <option value="Sí">Sí</option>
+                        <option value="No">No</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="safetyFilmError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="reverseCamera">Cámara de reversa <span class="req">*</span></label>
+                    <select id="reverseCamera" required>
+                        <option value="">Seleccione</option>
+                        <option value="Sí">Sí</option>
+                        <option value="No">No</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="reverseCameraError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="roofRack">Canasta / Parrilla de techo <span class="req">*</span></label>
+                    <select id="roofRack" required>
+                        <option value="">Seleccione</option>
+                        <option value="Sí">Sí</option>
+                        <option value="No">No</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="roofRackError">Obligatorio</div>
+                </div>
+
+                <div class="navigation">
+                    <button type="button" class="btn btn-secondary" onclick="prevSection(11)">Anterior</button>
+                    <button type="button" class="btn" onclick="validateSection(12, event)">Siguiente</button>
+                </div>
+            </div>
+
+            <!-- ============ SECCIÓN 13: PRUEBA DE RUTA ============ -->
+            <div class="form-section" id="section-13">
+                <h2><i class="fas fa-road"></i> Prueba de Ruta</h2>
+
+                <div class="form-group">
+                    <label for="acceleration">Aceleración <span class="req">*</span></label>
+                    <select id="acceleration" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="accelerationError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="handling">Maniobrabilidad <span class="req">*</span></label>
+                    <select id="handling" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="handlingError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="alignment">Ángulo de alineación <span class="req">*</span></label>
+                    <select id="alignment" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="alignmentError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="braking">Condición de frenado <span class="req">*</span></label>
+                    <select id="braking" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="brakingError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="clutch">Condición de embrague <span class="req">*</span></label>
+                    <select id="clutch" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="clutchError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="gearboxEngine">Relación caja-motor <span class="req">*</span></label>
+                    <select id="gearboxEngine" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="gearboxEngineError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="vibrations">Vibraciones <span class="req">*</span></label>
+                    <select id="vibrations" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="vibrationsError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="steeringBehavior">Comportamiento de la dirección <span class="req">*</span></label>
+                    <select id="steeringBehavior" required>
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Centrada, sin juego</option>
+                        <option value="Regular">Juego leve</option>
+                        <option value="Malo">Juego excesivo / se va a un lado</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div class="validation-error" id="steeringBehaviorError">Obligatorio</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="highwayTest">Prueba en carretera (alta velocidad):</label>
+                    <select id="highwayTest">
+                        <option value="">Seleccione estado</option>
+                        <option value="Bueno">Estable a alta velocidad</option>
+                        <option value="Regular">Vibración leve</option>
+                        <option value="Malo">Inestable / peligroso</option>
+                        <option value="N/A">No se realizó</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="routeTestDuration">Duración de la prueba (min):</label>
+                        <input type="number" id="routeTestDuration" placeholder="Ej: 15" min="0" max="120">
+                    </div>
+                    <div class="form-group">
+                        <label for="routeTestDistance">Distancia recorrida (km):</label>
+                        <input type="number" id="routeTestDistance" placeholder="Ej: 5" min="0" step="0.1">
+                    </div>
+                </div>
+
+                <div class="navigation">
+                    <button type="button" class="btn btn-secondary" onclick="prevSection(12)">Anterior</button>
+                    <button type="button" class="btn" onclick="validateSection(13, event)">Siguiente</button>
+                </div>
+            </div>
+
+            <!-- ============ SECCIÓN 14: FOTOS, ANEXOS Y OBSERVACIONES ============ -->
+            <div class="form-section" id="section-14">
+                <h2><i class="fas fa-camera-retro"></i> Fotografías, Anexos y Observaciones</h2>
+
+                <div class="photo-section-title">
+                    <i class="fas fa-images"></i> Fotografías Principales (Obligatorias)
+                </div>
+
+                <div class="photo-grid">
+                    <div class="form-group">
+                        <label for="photoFront">Foto 1 — Frontal</label>
+                        <input type="file" id="photoFront" class="photo-upload" accept="image/*">
+                        <img id="previewFront" class="photo-preview">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="photoSide">Foto 2 — Lateral</label>
+                        <input type="file" id="photoSide" class="photo-upload" accept="image/*">
+                        <img id="previewSide" class="photo-preview">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="photoRear">Foto 3 — Trasera</label>
+                        <input type="file" id="photoRear" class="photo-upload" accept="image/*">
+                        <img id="previewRear" class="photo-preview">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="photoEngine">Foto 4 — Motor</label>
+                        <input type="file" id="photoEngine" class="photo-upload" accept="image/*">
+                        <img id="previewEngine" class="photo-preview">
+                    </div>
+                </div>
+
+                <div class="photo-section-title" style="margin-top: 30px;">
+                    <i class="fas fa-paperclip"></i> Anexos Fotográficos Adicionales
+                    <span class="badge-info">Ilimitados</span>
+                </div>
+
+                <p class="photo-hint">
+                    <i class="fas fa-info-circle"></i> Agregue todas las fotos que evidencien hallazgos específicos.
+                    Cada foto debe tener una descripción de lo que muestra.
+                </p>
+
+                <div id="anexosContainer" class="anexos-container"></div>
+
+                <button type="button" class="btn btn-add-anexo" onclick="addAnexo()">
+                    <i class="fas fa-plus-circle"></i> Agregar Anexo Fotográfico
+                </button>
+
+                <div class="form-group" style="margin-top: 30px;">
+                    <label for="observations">Observaciones del Perito:</label>
+                    <textarea id="observations" rows="6" placeholder="Detalle todas las observaciones técnicas relevantes..."></textarea>
+                </div>
+
+                <div class="navigation">
+                    <button type="button" class="btn btn-secondary" onclick="prevSection(13)">Anterior</button>
+                    <button type="button" class="btn btn-success" onclick="validateSection(14, event)">
+                        <i class="fas fa-file-contract"></i> Generar Informe
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="report-container" id="finalReport"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
